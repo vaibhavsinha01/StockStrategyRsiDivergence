@@ -11,7 +11,7 @@ from creds import userID, passwordID
 capital = 10000
 startdate = datetime.datetime(2021, 1, 1)
 enddate = datetime.datetime(2024, 1, 1)
-stocks = ['MSFT', 'AAPL', 'GOOGL', 'TSLA']
+stocks = ['MSFT', 'AAPL', 'GOOGL', 'TSLA','JPM']
 
 class Broker:
     def __init__(self, balance):
