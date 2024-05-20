@@ -6,55 +6,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import math
-from creds import userID, passwordID
+from creds import userID, passwordID, key, secret
+import requests
+
 
 capital = 10000
 startdate = datetime.datetime(2021, 1, 1)
 enddate = datetime.datetime(2024, 1, 1)
 stocks = ['MSFT', 'AAPL', 'GOOGL', 'TSLA','JPM']
-
-"""class Broker:
-    def __init__(self, balance):
-        self.balance = balance
-        self.stocks = {}
-
-    def login(self, username, password):
-        if username == userID and password == passwordID:
-            print("You have successfully logged in")
-            return True
-        else:
-            print("Your password or username is wrong")
-            return False
-
-    def buy_stock(self, symbol, quantity, price):
-        cost = quantity * price
-        if cost > self.balance:
-            print("Insufficient balance")
-            return False
-        else:
-            if symbol in self.stocks:
-                self.stocks[symbol] += quantity
-            else:
-                self.stocks[symbol] = quantity
-            self.balance -= cost
-            print(f"Bought {quantity} shares of {symbol} at ${price} each. Remaining balance: ${self.balance}")
-            return True
-        
-    def sell_stock(self, symbol, quantity, price):
-        if symbol not in self.stocks or self.stocks[symbol] < quantity:
-            print(f"Not enough {symbol} shares to sell.")
-            return False
-        else:
-            self.stocks[symbol] -= quantity
-            self.balance += quantity * price
-            print(f"Sold {quantity} shares of {symbol} at ${price} each. Remaining balance: ${self.balance}")
-            return True
-        
-    def get_balance(self):
-        return self.balance
-
-    def get_portfolio(self):
-        return self.stocks"""
 
 class Strategy:
     def __init__(self, ticker, startdate, enddate, capital):
