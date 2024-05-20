@@ -7,9 +7,6 @@ import matplotlib.pyplot as plt
 import os
 import math
 
-
-
-
 capital = 10000
 startdate = datetime.datetime(2021, 1, 1)
 enddate = datetime.datetime(2024, 1, 1)
