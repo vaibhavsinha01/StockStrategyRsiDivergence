@@ -2,7 +2,8 @@ import requests
 import time
 from creds import key, secret, login, password
 
-url = "https://api-testnet.bybit.com/v5/order/create"
+url1 = "https://api-testnet.bybit.com/v5/order/create"
+url2 = "https://api-testnet.bybit.com/v5/order/cancel"
 
 class ByBitBroker:
     def __init__(self, balance):
@@ -22,7 +23,7 @@ class ByBitBroker:
             "symbol": symbol,
             "qty": quantity,
         }
-        response = requests.post(url, headers=header, json=payload)
+        response = requests.post(url1, headers=header, json=payload)
         print(response.text)  
     
     def cancel_order(self, order_id):
@@ -30,7 +31,7 @@ class ByBitBroker:
         payload = {
             "orderId": order_id,
         }
-        response = requests.post(url, headers=header, json=payload)
+        response = requests.post(url2, headers=header, json=payload)
         print(response.text)  
 
     def get_stocks(self):
@@ -40,11 +41,11 @@ class ByBitBroker:
         return self.balance
 
     def get_default_header(self):
-        current_timestamp = str(int(time.time() * 1000))  # Get current timestamp in milliseconds
+        current_timestamp = str(int(time.time() * 1000))  
         return {
             'X-BAPI-API-KEY': key,
-            'X-BAPI-TIMESTAMP': current_timestamp,  # Use current timestamp
-            'X-BAPI-RECV-WINDOW': '2000',  # Adjust recv_window if needed
+            'X-BAPI-TIMESTAMP': current_timestamp,  
+            'X-BAPI-RECV-WINDOW': '2000', 
             'X-BAPI-SIGN': 'd97c47798adf11dffcf16c292d56fc1e594a5a4f45a4a0137b3ba384c0ac026a'
         }
 
