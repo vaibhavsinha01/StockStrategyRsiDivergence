@@ -13,7 +13,7 @@ startdate = datetime.datetime(2021, 1, 1)
 enddate = datetime.datetime(2024, 1, 1)
 stocks = ['MSFT', 'AAPL', 'GOOGL', 'TSLA','JPM']
 
-class Broker:
+"""class Broker:
     def __init__(self, balance):
         self.balance = balance
         self.stocks = {}
@@ -54,7 +54,7 @@ class Broker:
         return self.balance
 
     def get_portfolio(self):
-        return self.stocks
+        return self.stocks"""
 
 class Strategy:
     def __init__(self, ticker, startdate, enddate, capital):
