@@ -10,8 +10,8 @@ class ByBitBroker:
         self.balance = balance
         self.stocks = {}
 
-    def login(self, user, password, k, secr):
-        if user == login and password == password and k == key and secr == secret:
+    def login(self, user, password1, k, secr):
+        if user == login and password1 == password and k == key and secr == secret :
             print("Successfully logged in")
         else:
             print("Login unsuccessful")
