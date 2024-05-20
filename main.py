@@ -6,8 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import math
-from creds import userID, passwordID, key, secret
-import requests
+
+
 
 
 capital = 10000
@@ -129,10 +129,6 @@ class Strategy:
         self.graph()
 
 def main():
-    broker = Broker(capital)
-    if not broker.login(userID, passwordID):
-        return
-
     for ticker in stocks:
         strategy = Strategy(ticker, startdate, enddate, capital)
         strategy.apply_conditions()
