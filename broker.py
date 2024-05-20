@@ -1,4 +1,5 @@
 import requests
+import time
 from creds import key, secret, login, password
 
 url = "https://api-testnet.bybit.com/v5/order/create"
@@ -39,9 +40,12 @@ class ByBitBroker:
         return self.balance
 
     def get_default_header(self):
+        current_timestamp = str(int(time.time() * 1000))  # Get current timestamp in milliseconds
         return {
             'X-BAPI-API-KEY': key,
-            'X-BAPI-TIMESTAMP': '1716201412259', 
-            'X-BAPI-RECV-WINDOW': '20000',
+            'X-BAPI-TIMESTAMP': current_timestamp,  # Use current timestamp
+            'X-BAPI-RECV-WINDOW': '2000',  # Adjust recv_window if needed
             'X-BAPI-SIGN': 'd97c47798adf11dffcf16c292d56fc1e594a5a4f45a4a0137b3ba384c0ac026a'
         }
+
+    
