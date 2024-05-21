@@ -2,6 +2,11 @@ import requests
 import time as time
 from creds import secret,key
 
+#things to do 
+
+#1)put this in broker class 2)set the parameters for the payload 3)write using init function 4)get correct timestamp 5)ask to get the correct api key
+#6)set the login funcion correctly
+
 # a function for getting kline
 def getkline(symbol):
     url1 = f"https://api-testnet.bybit.com/v5/market/kline?category=linear&symbol={symbol}&interval=1"
@@ -36,7 +41,7 @@ def place_order():
 
   payload = "{\n  \"category\": \"linear\",\n  \"symbol\": \"ETHUSDT\",\n  \"isLeverage\": 0,\n  \"side\": \"Buy\",\n  \"orderType\": \"Limit\",\n  \"qty\": \"1\",\n  \"price\": \"1000\",\n  \"triggerPrice\": null,\n  \"triggerDirection\": null,\n  \"triggerBy\": null,\n  \"orderFilter\": null,\n  \"orderIv\": null,\n  \"timeInForce\": \"GTC\",\n  \"positionIdx\": 0,\n  \"orderLinkId\": \"test-xx1\",\n  \"takeProfit\": null,\n  \"stopLoss\": null,\n  \"tpTriggerBy\": null,\n  \"slTriggerBy\": null,\n  \"reduceOnly\": false,\n  \"closeOnTrigger\": false,\n  \"smpType\": null,\n  \"mmp\": null,\n  \"tpslMode\": null,\n  \"tpLimitPrice\": null,\n  \"slLimitPrice\": null,\n  \"tpOrderType\": null,\n  \"slOrderType\": null\n}"
   headers = {
-      'X-BAPI-API-KEY': 'CFEJUGQEQPPHGOHGHM',
+      'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
       'X-BAPI-TIMESTAMP': timestamp,
       'X-BAPI-RECV-WINDOW': '20000',
       'X-BAPI-SIGN': '4d7e04a9ea32141613b6c0ca85b552b65ff50f302cc0d74c72382242ebe34c11'
@@ -55,7 +60,7 @@ def cancel_order():
 
   payload = "{\n  \"category\": \"spot\",\n  \"symbol\": \"ETHUSDT\",\n  \"orderId\": null,\n  \"orderLinkId\": null,\n  \"orderFilter\": \"Order\"\n}"
   headers = {
-    'X-BAPI-API-KEY': 'CFEJUGQEQPPHGOHGHM',
+    'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
     'X-BAPI-TIMESTAMP': timestamp,
     'X-BAPI-RECV-WINDOW': '20000',
     'X-BAPI-SIGN': 'd2e9a3da3bbcdf5cf14b041049523b9bb5cb5dd80f6c58ef97a27a4c676a39c2'
@@ -76,7 +81,7 @@ def get_balance():
   print(timestamp)
 
   headers = {
-    'X-BAPI-API-KEY': 'CFEJUGQEQPPHGOHGHM',
+    'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
     'X-BAPI-TIMESTAMP': timestamp,
     'X-BAPI-RECV-WINDOW': '20000',
     'X-BAPI-SIGN': '7edaae594e3e331689a740ff70f5be0da00aa72bfac1d37c7046083365b4a42a'
@@ -93,7 +98,7 @@ def get_order_history():
   timestamp=str(int(time.time()*1000))
   payload={}
   headers = {
-    'X-BAPI-API-KEY': 'CFEJUGQEQPPHGOHGHM',
+    'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
     'X-BAPI-TIMESTAMP': timestamp,
     'X-BAPI-RECV-WINDOW': '20000',
     'X-BAPI-SIGN': '654e662d29f22fba724bcf2e24d612fcaa4c1b38027d9838a226032c37429680'
@@ -110,7 +115,7 @@ def get_balance_coins():
   timestamp=str(int(time.time()*1000))
   payload={}
   headers = {
-      'X-BAPI-API-KEY': 'FzOqnkUUopI7emsDJ8',
+      'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
       'X-BAPI-TIMESTAMP': timestamp,
       'X-BAPI-RECV-WINDOW': '20000',
       'X-BAPI-SIGN': '880fe4de0a5998eab1178e7292b77573001d70311c76db93adb2e013f23603df'
@@ -128,7 +133,7 @@ def set_SLandTP():
 
   payload = "{\n  \"category\": \"linear\",\n  \"symbol\": \"ETHUSDT\",\n  \"tpSlMode\": \"Full\"\n}"
   headers = {
-    'X-BAPI-API-KEY': 'CFEJUGQEQPPHGOHGHM',
+    'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
     'X-BAPI-TIMESTAMP': timestamp,
     'X-BAPI-RECV-WINDOW': '20000',
     'X-BAPI-SIGN': '8893f51353b36d96122c1fa8217ec378cd5ece0984f3f6708413fe90c65263ec'
@@ -145,7 +150,7 @@ def get_account_information():
   timestamp=str(int(time.time()*1000))
   payload={}
   headers = {
-    'X-BAPI-API-KEY': 'CFEJUGQEQPPHGOHGHM',
+    'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
     'X-BAPI-TIMESTAMP': timestamp,
     'X-BAPI-RECV-WINDOW': '20000',
     'X-BAPI-SIGN': '3d7b7c288edde8914e90e65aec4d1fbc848ea125bae623f3fdd223f54a6a4ec4'
@@ -159,12 +164,12 @@ def main():
   login("5tOGM14Ek0YUXkyWd033OZzyz6pUA5yPvtIa","a7zr474x6gRchvFiR0")
   getkline("BTCUSDT")
   get_ticker("BTCUSDT")
-  """place_order()
+  place_order()
   set_SLandTP()
   cancel_order()
   get_balance()
   get_order_history()
-  get_account_information()"""
+  get_account_information()
 
 main()
 
