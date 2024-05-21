@@ -18,6 +18,15 @@ def login(s,k):
   else:
     print("login is unsuccessful")
 
+# a function to get ticker value
+
+def get_ticker(symbol):
+    url = f"https://api-testnet.bybit.com/v5/market/tickers?category=linear&symbol={symbol}"
+    payload = {}
+    headers = {}
+    response = requests.get(url, headers=headers, data=payload)
+    print(response.text)
+
 # a function for placing an order
 
 def place_order():
@@ -149,13 +158,14 @@ def get_account_information():
 def main():
   login("5tOGM14Ek0YUXkyWd033OZzyz6pUA5yPvtIa","a7zr474x6gRchvFiR0")
   getkline("BTCUSDT")
-  place_order()
+  get_ticker("BTCUSDT")
+  """place_order()
   set_SLandTP()
   cancel_order()
   get_balance()
   get_order_history()
-  get_account_information()
-  
+  get_account_information()"""
+
 main()
 
 
