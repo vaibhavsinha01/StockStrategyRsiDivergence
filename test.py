@@ -1,21 +1,21 @@
 import requests
 import time as time
 from creds import secret,key
+from pybit.unified_trading import HTTP
+import hmac
+import hashlib
 
 #things to do 
 
 #1)put this in broker class 2)set the parameters for the payload 3)write using init function 4)get correct timestamp 5)ask to get the correct api key
 #6)set the login funcion correctly
 
-# a function for getting kline
+
 def getkline(symbol):
     url1 = f"https://api-testnet.bybit.com/v5/market/kline?category=linear&symbol={symbol}&interval=1"
     headers = {}
-
     response = requests.request("GET", url1, headers=headers)
-
     print(response.text)
-# a function to login
 
 def login(s,k):
   if (s==secret) & (k==key):
@@ -23,14 +23,13 @@ def login(s,k):
   else:
     print("login is unsuccessful")
 
-# a function to get ticker value
-
 def get_ticker(symbol):
     url = f"https://api-testnet.bybit.com/v5/market/tickers?category=linear&symbol={symbol}"
     payload = {}
     headers = {}
     response = requests.get(url, headers=headers, data=payload)
     print(response.text)
+
 
 # a function for placing an order
 
@@ -91,58 +90,6 @@ def get_balance():
 
   print(response.text)
 
-# a function for getting the order history
-
-def get_order_history():
-  url5 = "https://api-testnet.bybit.com/v5/order/history"
-  timestamp=str(int(time.time()*1000))
-  payload={}
-  headers = {
-    'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
-    'X-BAPI-TIMESTAMP': timestamp,
-    'X-BAPI-RECV-WINDOW': '20000',
-    'X-BAPI-SIGN': '654e662d29f22fba724bcf2e24d612fcaa4c1b38027d9838a226032c37429680'
-  }
-
-  response = requests.request("GET", url5, headers=headers, data=payload)
-
-  print(response.text)
-
-# a function for getting balance of all coins
-
-def get_balance_coins():
-  url6 = "https://api-testnet.bybit.com/v5/asset/transfer/query-account-coins-balance?accountType=INVESTMENT"
-  timestamp=str(int(time.time()*1000))
-  payload={}
-  headers = {
-      'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
-      'X-BAPI-TIMESTAMP': timestamp,
-      'X-BAPI-RECV-WINDOW': '20000',
-      'X-BAPI-SIGN': '880fe4de0a5998eab1178e7292b77573001d70311c76db93adb2e013f23603df'
-    }
-
-  response = requests.request("GET", url6, headers=headers, data=payload)
-
-  print(response.text)
-
-# a function to set up the takeprofit and stoploss mode
-
-def set_SLandTP():
-  url7 = "https://api-testnet.bybit.com/v5/position/set-tpsl-mode"
-  timestamp=str(int(time.time()*1000))
-
-  payload = "{\n  \"category\": \"linear\",\n  \"symbol\": \"ETHUSDT\",\n  \"tpSlMode\": \"Full\"\n}"
-  headers = {
-    'X-BAPI-API-KEY': 'a7zr474x6gRchvFiR0',
-    'X-BAPI-TIMESTAMP': timestamp,
-    'X-BAPI-RECV-WINDOW': '20000',
-    'X-BAPI-SIGN': '8893f51353b36d96122c1fa8217ec378cd5ece0984f3f6708413fe90c65263ec'
-  }
-
-  response = requests.request("POST", url7, headers=headers, data=payload)
-
-  print(response.text)
-
 # a function to get account information
 
 def get_account_information():
@@ -165,10 +112,8 @@ def main():
   getkline("BTCUSDT")
   get_ticker("BTCUSDT")
   place_order()
-  set_SLandTP()
   cancel_order()
   get_balance()
-  get_order_history()
   get_account_information()
 
 main()
