@@ -2,13 +2,15 @@ import requests
 import time
 import hmac
 import hashlib
+import json  # Import the json module
 from urllib.parse import urlencode
+
 
 class Broker:
     @staticmethod
     def create_signature(api_secret, method, url, payload):
         secret_bytes = api_secret.encode('utf-8')
-        message = (method + url + payload).encode('utf-8')
+        message = (method + url + payload).encode('utf-8')  # Concatenate method, url, and payload
         signature = hmac.new(secret_bytes, message, hashlib.sha256).hexdigest()
         return signature
 
@@ -47,14 +49,15 @@ class Broker:
         response = requests.get(url)
         print(response.text)
 
+    # Update place_order method
     @staticmethod
     def place_order(symbol):
         method = "POST"
         url2 = "https://api-testnet.bybit.com/v5/order/create"
 
         timestamp = str(int(time.time() * 1000))
-        payload = '{"category": "linear", "symbol": "ETHUSDT", "isLeverage": 0, "side": "Buy", "orderType": "Limit", "qty": "1", "price": "1000", "timeInForce": "GTC", "positionIdx": 0, "orderLinkId": "test-xx1"}'
-        signature = Broker.create_signature(secret, method, url2, payload)
+        payload = json.dumps({"symbol": "ETHUSDT", "side": "Buy", "order_type": "Limit", "qty": "1", "price": "1000"})  # Update payload to dict and serialize it
+        signature = Broker.create_signature(secret, method, url2, payload)  # Use the serialized payload
 
         headers = {
             'X-BAPI-API-KEY': key,
@@ -63,19 +66,20 @@ class Broker:
             'X-BAPI-SIGN': signature
         }
 
-        response = requests.post(url2, headers=headers, data=payload)
+        response = requests.post(url2, headers=headers, json=json.loads(payload))  # Deserialize payload and use json parameter instead of data
         print(response.text)
 
+    # Update cancel_order method
     @staticmethod
     def cancel_order(symbol):
-        method='POST'
+        method = 'POST'
         url3 = "https://api-testnet.bybit.com/v5/order/cancel"
-        timestamp=str(int(time.time()*1000))
+        timestamp = str(int(time.time() * 1000))
 
         # Define the payload variable
-        payload = f'{{"category": "spot", "symbol": "{symbol}", "orderId": null, "orderLinkId": null, "orderFilter": "Order"}}'
+        payload = {"symbol": symbol}  # Update payload to dict
 
-        signature = Broker.create_signature(secret, method, url3, payload)
+        signature = Broker.create_signature(secret, method, url3, json.dumps(payload))  # Use json.dumps() to serialize the payload
 
         headers = {
             'X-BAPI-API-KEY': key,
@@ -84,12 +88,12 @@ class Broker:
             'X-BAPI-SIGN': signature
         }
 
-        response = requests.post(url3, headers=headers, data=payload)
+        response = requests.post(url3, headers=headers, json=payload)  # Use json parameter instead of data
         print(response.text)
 
 # Example usage
-key = "RpIwvnwYtPS380SxKV"
-secret = "OP9SsrwYt9Y7Sveici9XjRucDtqBB0lqbY2C"
+key = "yvbFHB7ghuq0tFQHOs"
+secret = "8VRba94rVEd5MCcreRD96CPqx7bqmJrevf2p"
 
 Broker.login(key, secret)
 Broker.getkline("ETHUSDT")
