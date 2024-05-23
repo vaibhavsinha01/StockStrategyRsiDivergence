@@ -89,12 +89,9 @@ class Broker:
 
 Broker.login(key, secret)
 
-# get klines
 Broker.getkline("ETHUSDT")
 
-# get ticker
 Broker.get_ticker("ETHUSDT")
 
-# place order
 Broker.place_order("ETHUSDT")
 
