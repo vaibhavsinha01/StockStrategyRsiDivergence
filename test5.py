@@ -6,8 +6,8 @@ from urllib.parse import urlencode, quote_plus
 import urllib3
 
 # Testnet with read-only API key and secret
-SecretKey = "OP9SsrwYt9Y7Sveici9XjRucDtqBB0lqbY2C"
-AccessKey = "RpIwvnwYtPS380SxKV"
+SecretKey = "YEbwmyrs9A6Ox9WQrm4S7ZTp0kPmoNXUBIdf"
+AccessKey = "lPNqiH36jKDZlL4JQ9"
 
 def bybit_spot_balance(AccessKey: str, SecretKey: str) -> dict:
     # Parameters for the request
