@@ -5,16 +5,18 @@ import talib
 import numpy as np
 
 def optimfunc(series):
-    if series["# Trades"]<10:
+    if series["# Trades"] < 10:
         return -1
     else:
-        return ['Equity Final [$]']
+        return series['Equity Final [$]']
 
 class Backtesting(Strategy):
     upper_bound_rsi=70
     lower_bound_rsi=30
     rsi_window=14
     bb_window=14
+    stlo=97
+    tkpr=110
 
     def init(self):
         self.daily_rsi = self.I(talib.RSI, self.data.Close, self.rsi_window)
@@ -23,14 +25,16 @@ class Backtesting(Strategy):
             talib.BBANDS, self.data.Close,timeperiod=self.bb_window)
         
     def next(self):
-        if (self.daily_rsi<self.lower_bound_rsi and self.data.Close<self.bollinger_middle and self.volume_delta[-1]>0):
+        price=self.data.Close
+        if (self.daily_rsi < self.lower_bound_rsi and self.data.Close < self.bollinger_middle):
             if self.position.is_long:
                 self.position.close()
-                self.buy()
-        elif (self.daily_rsi>self.upper_bound_rsi and self.data.Close>self.bollinger_middle and self.volume_delta[-1]<0):
-            if  self.position.is_short or not self.position:
+                self.buy(sl=(self.stlo*price)/100,tp=(self.tkpr*price)/100)
+        elif (self.daily_rsi > self.upper_bound_rsi and self.data.Close > self.bollinger_middle):
+            if self.position.is_short or not self.position:
                 self.position.close()
-                self.buy()
+                self.buy(sl=(self.stlo*price)/100,tp=(self.tkpr*price)/100)
+
         
 bt = Backtest(GOOG, Backtesting, cash=10000)
 
@@ -39,8 +43,11 @@ stats=bt.optimize(
     lower_bound_rsi=range(15,50,5),
     rsi_window=range(12,16,1),
     bb_window=range(12,16,1),
+    stlo=range(95,99,1),
+    tkpr=range(105,115,1),
     maximize=optimfunc,
     constraint=lambda param:param.lower_bound_rsi<=param.upper_bound_rsi
 )
 
 bt.plot()
+
