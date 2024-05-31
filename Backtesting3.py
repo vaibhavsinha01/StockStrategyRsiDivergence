@@ -10,7 +10,7 @@ startdate = datetime.datetime(2016, 1, 1)
 enddate = datetime.datetime(2024, 1, 1)
 
 # List of stocks to fetch data for
-stocks = ['MSFT', 'NVDA', 'AAPL', 'GOOGL', 'JPM']
+stocks = ['NVDA']
 
 class DataFetcher:
     def __init__(self, startdate, enddate):

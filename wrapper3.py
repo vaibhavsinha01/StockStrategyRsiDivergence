@@ -1,6 +1,8 @@
 from pybit.unified_trading import HTTP
 import creds
 import uuid
+from main import Strategy
+import datetime
 
 class TradingSession:
     def __init__(self, testnet=True, api_key=creds.apikey, api_secret=creds.apisecret):
@@ -25,7 +27,7 @@ class TradingSession:
             symbol=symbol,
         )
         
-    def place_order(self, category="spot", symbol="BTCUSDT", side="Buy", orderType="Limit", qty="0.01", price="100", timeInForce="PostOnly"):
+    def place_order(self, category="spot", symbol="BTCUSDT", side="Buy", orderType="Limit", qty="0.01", price="15600", timeInForce="PostOnly"):
     # Generate unique clientOrderId
         clientOrderId = str(uuid.uuid4())
         return self.session.place_order(
@@ -80,17 +82,25 @@ class TradingSession:
 
     def tickers(self, category='spot', symbol='BTCUSDT'):
         return self.session.get_tickers(category=category, symbol=symbol)
+    
+    def apply_strategy(self, symbol, startdate, enddate, capital):
+        strategy = Strategy(symbol, startdate, enddate, capital)
+        self.data = strategy.FetchData()
+        self.data = strategy.SetIndicator()
+        self.data = strategy.Fractal1()
+        self.data = strategy.Fractal2()
+        self.data = strategy.Fractal3()
+        self.data = strategy.Fractal4()
+        self.data = strategy.Divergence()
+        self.data = strategy.Signal()
 
-trading_session = TradingSession()
+        if self.data['Signal'].iloc[-1] == 1:
+            self.place_order("spot", symbol, "Buy", "Limit", 1, self.data['Close'].iloc[-1], "PostOnly")
 
-# Example usage:
-print(trading_session.account_balance())
-print(trading_session.get_kline())
-print(trading_session.orderbook())
-print(trading_session.tickers())
-print(trading_session.fee_rate_info())
-print(trading_session.place_order())
-print(trading_session.get_positions())
-print(trading_session.cancel_all_orders())
-print(trading_session.get_recent_trades())
-print(trading_session.account_balance())
+def main():
+    trading_session = TradingSession()
+    trading_session.apply_strategy("BTCUSDT", datetime.datetime(2021, 1, 1), datetime.datetime(2024, 1, 1), 10000)
+
+if __name__ == '__main__':
+    main()
+    

@@ -20,11 +20,9 @@ class Broker:
     def getkline(symbol):
         url = f"https://api-testnet.bybit.com/v5/market/kline?category=linear&symbol={symbol}&interval=1"
         response = requests.get(url)
-        try:
-            response_json = response.json()
-            print(response_json)
-        except requests.exceptions.JSONDecodeError:
-            print("Failed to parse JSON response:", response.text)
+        response_json = response.json()
+        print(response_json)
+        
 
     @staticmethod
     def login(api_key, api_secret):
@@ -45,31 +43,23 @@ class Broker:
             'X-BAPI-SIGN': signature,
             'Content-Type': 'application/json'
         }
-
         response = requests.post(url, headers=headers, data=payload)
         print(f"Login request: {response.request.body}")
         print(f"Login headers: {response.request.headers}")
-        try:
-            response_json = response.json()
-            if response.status_code == 200:
+        response_json = response.json()
+        if response.status_code == 200:
                 print("Login successful")
                 return response_json
-            else:
+        else:
                 print("Login failed:", response_json)
                 return response_json
-        except requests.exceptions.JSONDecodeError:
-            print("Failed to parse JSON response:", response.text)
-            return None
 
     @staticmethod
     def get_ticker(symbol):
         url = f"https://api-testnet.bybit.com/v5/market/tickers?category=linear&symbol={symbol}"
         response = requests.get(url)
-        try:
-            response_json = response.json()
-            print(response_json)
-        except requests.exceptions.JSONDecodeError:
-            print("Failed to parse JSON response:", response.text)
+        response_json = response.json()
+        print(response_json)
 
     @staticmethod
     def place_order(symbol):
@@ -102,11 +92,10 @@ class Broker:
         response = requests.post(url, headers=headers, data=payload)
         print(f"Place order request: {response.request.body}")
         print(f"Place order headers: {response.request.headers}")
-        try:
-            response_json = response.json()
-            print(response_json)
-        except requests.exceptions.JSONDecodeError:
-            print("Failed to parse JSON response:", response.text)
+        
+        response_json = response.json()
+        print(response_json)
+        
 
     @staticmethod
     def cancel_order(symbol):
@@ -134,11 +123,9 @@ class Broker:
         response = requests.post(url, headers=headers, data=payload)
         print(f"Cancel order request: {response.request.body}")
         print(f"Cancel order headers: {response.request.headers}")
-        try:
-            response_json = response.json()
-            print(response_json)
-        except requests.exceptions.JSONDecodeError:
-            print("Failed to parse JSON response:", response.text)
+        response_json = response.json()
+        print(response_json)
+        
 
 # Login
 login_response = Broker.login(creds.apikey, creds.apisecret)
