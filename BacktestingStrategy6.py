@@ -2,7 +2,6 @@ from backtesting import Backtest, Strategy
 import talib
 import yfinance as yf
 import datetime
-import pandas as pd
 
 # Global parameters
 startdate = datetime.datetime(2016, 1, 1)

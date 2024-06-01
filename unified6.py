@@ -25,22 +25,16 @@ class TradingSession:
         )
         
     def get_kline(self, category="spot", symbol="BTCUSDT", interval=60):
-        return (self.session.get_kline(
+        var=(self.session.get_kline(
             category=category,
             symbol=symbol,
             interval=interval,
         ))
-        """data=var['result']['list']
-        df=pd.DataFrame(data,columns=['1','2','3','4','5','6','7'])
+        data=var['result']['list']
+        df=pd.DataFrame(data,columns=['timestamp','open','high','low','Close','Volume','VolumeUSD'])
         print(df.head())
         self.data=df
-        return self.data"""
-        
-    def orderbook(self, category='spot', symbol='BTCUSDT'):
-        return self.session.get_orderbook(
-            category=category,
-            symbol=symbol,
-        )
+        return self.data
         
     def place_order(self, category="spot", symbol="BTCUSDT", side="Buy", orderType="Market", qty="0.01", timeInForce="PostOnly"):
         clientOrderId = str(uuid.uuid4())
@@ -52,48 +46,7 @@ class TradingSession:
             qty=qty,
             timeInForce=timeInForce,
             clientOrderId=clientOrderId,
-        )
-
-    def cancel_all_orders(self, category="linear", settleCoin="USDT"):
-        return self.session.cancel_all_orders(
-            category=category,
-            settleCoin=settleCoin,
-        )
-        
-    def get_recent_trades(self, category='spot', symbol='BTCUSDT', limit=1):
-        return self.session.get_public_trade_history(
-            category=category,
-            symbol=symbol,
-            limit=limit
-        )
-        
-    def account_balance(self, accountType='UNIFIED', coin='BTC'):
-        return self.session.get_wallet_balance(
-            accountType=accountType,
-            coin=coin
-        )
-        
-    def cancel_order(self, category='spot', symbol='BTCUSDT', orderId="c6f055d9-7f21-4079-913d-e6523a9cfffa"):
-        return self.session.cancel_order(
-            category=category,
-            symbol=symbol,
-            orderId=orderId
-        )
-        
-    def fee_rate_info(self, symbol='BTCUSDT'):
-        return self.session.get_fee_rates(symbol=symbol)
-    
-    def coin_balance(self, accountType='UNIFIED', coin='USDC'):
-        return self.session.get_coins_balance(accountType=accountType, coin=coin)
-    
-    def get_positions(self, category='linear', symbol='BTCUSDT'):
-        return self.session.get_positions(category=category, symbol=symbol)
-    
-    def historical_volatility(self, category='spot', baseCoin='BTC', period=30):
-        return self.session.get_historical_volatility(category=category, baseCoin=baseCoin, period=period)
-
-    def tickers(self, category='spot', symbol='BTCUSDT'):
-        return self.session.get_tickers(category=category, symbol=symbol)
+        )    
 
 class Strategy(TradingSession):
     def __init__(self, ticker, startdate, enddate, capital, session=None):
@@ -156,17 +109,18 @@ class Strategy(TradingSession):
             elif (self.data['Rsi'].iloc[i] > 60) & (self.data['Close'].iloc[i] > (self.data['BBmid'].iloc[i]) / 2)  & (self.data['maxterm'].iloc[i] == True) & (self.data['maxtermr'].iloc[i] == True):
                 self.data['Signal'].iloc[i] = -1
         return self.data
-
+    
     def execute_trades(self):
-        sessioninitial = TradingSession()
-        for i in range(len(self.data)):
-            if self.data['Signal'].iloc[i] == 1:
-                print(f"Buy signal detected for {self.ticker}. Placing order.")
-                """sessioninitial.place_order(category="spot", symbol=self.ticker, side="Buy", orderType="Market", qty=0.01)"""
-            elif self.data['Signal'].iloc[i] == -1:
-                print(f"Sell signal detected for {self.ticker}. Placing order.")
-                # sessioninitial.place_order(category="spot", symbol=self.ticker, side="Sell", orderType="Market", qty=0.01)
-
+        sessionfinal=TradingSession()
+        latest_signal=self.data['Signal'].iloc[-1]
+        if(latest_signal==1):
+            print("Buy signal detected for {self.ticker} Placing order")
+            sessionfinal.place_order(category="spot", symbol=self.ticker, side="Buy", orderType="Market", qty=0.01)
+        elif(latest_signal==-1):
+            print("Sell signal detected for {self.ticker} Placing order")
+            sessionfinal.place_order(category="spot", symbol=self.ticker, side="Sell", orderType="Market", qty=0.01)
+        elif(latest_signal==0):
+            print("The Signal is 0 no order will be placed")
 
     def apply_conditions(self):
         var=self.get_kline()
