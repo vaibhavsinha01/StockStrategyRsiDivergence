@@ -25,13 +25,13 @@ class TradingSession:
         )
         
     def get_kline(self, category="spot", symbol="BTCUSDT", interval=60, start=1670601600000, end=1670608800000):
-        return self.session.get_kline(
+        return pd.DataFrame(self.session.get_kline(
             category=category,
             symbol=symbol,
             interval=interval,
             start=start,
             end=end,
-        )
+        ))
         
     def orderbook(self, category='spot', symbol='BTCUSDT'):
         return self.session.get_orderbook(
@@ -52,7 +52,6 @@ class TradingSession:
             clientOrderId=clientOrderId,
         )
 
-        
     def cancel_all_orders(self, category="linear", settleCoin="USDT"):
         return self.session.cancel_all_orders(
             category=category,
@@ -93,8 +92,6 @@ class TradingSession:
 
     def tickers(self, category='spot', symbol='BTCUSDT'):
         return self.session.get_tickers(category=category, symbol=symbol)
-
-
 
 class Strategy(TradingSession):
     def __init__(self, ticker, startdate, enddate, capital, session=None):

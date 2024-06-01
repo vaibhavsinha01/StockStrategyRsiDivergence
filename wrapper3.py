@@ -99,7 +99,7 @@ class TradingSession:
 
 def main():
     trading_session = TradingSession()
-    trading_session.apply_strategy("BTCUSDT", datetime.datetime(2021, 1, 1), datetime.datetime(2024, 1, 1), 10000)
+    trading_session.apply_strategy("BTCUSDT", datetime.datetime(2016, 1, 1), datetime.datetime(2024, 1, 1), 10000)
 
 if __name__ == '__main__':
     main()
