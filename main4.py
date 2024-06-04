@@ -7,24 +7,60 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import math
+from pybit.unified_trading import HTTP
+import creds
+import uuid
+import time
 
 capital = 10000
 startdate = datetime.datetime(2023, 8, 1)
 enddate = datetime.datetime(2024, 1, 1)
-stocks = ['MSFT','AAPL']
+stocks = ['BTCUSDT']
 
-class Strategy:
+class TradingSession:
+    def __init__(self, testnet=True, api_key=creds.apikey, api_secret=creds.apisecret):
+        self.session = HTTP(
+            testnet=testnet,
+            api_key=api_key,
+            api_secret=api_secret,
+        )
+        
+    def get_kline(self, category="spot", symbol="BTCUSDT", interval=60):
+        response = self.session.get_kline(
+            category=category,
+            symbol=symbol,
+            interval=interval,
+        )
+        print(response)  # Print the entire response to debug
+        if 'result' in response and 'list' in response['result']:
+            data = response['result']['list']
+            df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'Close', 'Volume', 'VolumeUSD'])
+            print(df.head())
+            return df
+        else:
+            print("Error: Unexpected response format")
+            return pd.DataFrame(columns=['timestamp', 'open', 'high', 'low', 'Close', 'Volume', 'VolumeUSD'])
+
+    def place_order(self, category="spot", symbol="BTCUSDT", side="Buy", orderType="Market", qty="0.01", timeInForce="PostOnly"):
+        clientOrderId = str(uuid.uuid4())
+        return self.session.place_order(
+            category=category,
+            symbol=symbol,
+            side=side,
+            orderType=orderType,
+            qty=qty,
+            timeInForce=timeInForce,
+            clientOrderId=clientOrderId,
+        )    
+
+
+class Strategy(TradingSession):
     def __init__(self, ticker, startdate, enddate, capital):
         self.ticker = ticker
         self.startdate = startdate
         self.enddate = enddate
         self.capital = capital
         self.data = None
-
-    def FetchData(self):
-        self.data = yf.download(self.ticker, start=self.startdate, end=self.enddate)
-        self.data.drop('Adj Close', axis=1, inplace=True)
-        return self.data
 
     def SetIndicator(self):
         self.data['Rsi'] = talib.RSI(self.data['Close'], timeperiod=14)
@@ -91,29 +127,50 @@ class Strategy:
             if (data['DivergenceSignal'].iloc[i])==-1 and (data['Rsi'].iloc[i]>50) and (data['BBmid'].iloc[i]<data['Close'].iloc[i]):
                 data['Signal2'].iloc[i] = -1
         return data
+    
+    def execute_trades1(self,data):
+        sessionfinal = TradingSession()
+        latest_signal = data['Signal1'].iloc[-1]
+        if latest_signal == 1:
+            print(f"Buy signal detected for {self.ticker}. Placing order.")
+            sessionfinal.place_order(category="spot", symbol=self.ticker, side="Buy", orderType="Market", qty=0.01)
+        elif latest_signal == 0:
+            print("The Signal is 0, no order will be placed.")
 
+    def execute_trades2(self,data):
+        sessionfinal = TradingSession()
+        latest_signal = data['Signal2'].iloc[-1]
+        if latest_signal == 1:
+            print(f"Buy signal detected for {self.ticker}. Placing order.")
+            sessionfinal.place_order(category="spot", symbol=self.ticker, side="Sell", orderType="Market", qty=0.01)
+        elif latest_signal == 0:
+            print("The Signal is 0, no order will be placed.")
+    
     def apply_conditions(self):
-        self.FetchData()
-        self.SetIndicator()
-        self.Fractal1()
-        self.Fractal2()
-        self.Fractal3()
-        self.Fractal4()  
-        fractal_df1 = self.data[(self.data['minterm'] == True) & (self.data['mintermr'] == True)]
-        fractal_df2 = self.data[(self.data['maxterm'] == True) & (self.data['maxtermr'] == True)]
-        
-        # Apply Divergence on fractal_df1 and fractal_df2 separately
-        divergence_df1 = self.Divergence(fractal_df1)
-        divergence_df2 = self.Divergence(fractal_df2)
-        
-        Sgn1 = self.Signal1(divergence_df1)
-        Sgn2 = self.Signal2(divergence_df2)
-        
-        Sgn1.to_csv(f"file1_{self.ticker}.csv")
-        Sgn2.to_csv(f"file2_{self.ticker}.csv")
-        print(Sgn1)
-        print(Sgn2)
-   
+        while True:
+            self.get_kline()
+            self.SetIndicator()
+            self.Fractal1()
+            self.Fractal2()
+            self.Fractal3()
+            self.Fractal4()  
+            fractal_df1 = self.data[(self.data['minterm'] == True) & (self.data['mintermr'] == True)]
+            fractal_df2 = self.data[(self.data['maxterm'] == True) & (self.data['maxtermr'] == True)]
+            
+            # Apply Divergence on fractal_df1 and fractal_df2 separately
+            divergence_df1 = self.Divergence(fractal_df1)
+            divergence_df2 = self.Divergence(fractal_df2)
+            
+            Sgn1 = self.Signal1(divergence_df1)
+            Sgn2 = self.Signal2(divergence_df2)
+
+            ex1 = self.execute_trades1(Sgn1)
+            ex2 = self.execute_trades2(Sgn2)
+
+            Sgn1.to_csv(f"file1_{self.ticker}.csv")
+            Sgn2.to_csv(f"file2_{self.ticker}.csv")
+            time.sleep(60)
+    
 
 def main():
     for ticker in stocks:
