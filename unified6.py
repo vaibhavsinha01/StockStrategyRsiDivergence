@@ -9,6 +9,7 @@ import math
 from pybit.unified_trading import HTTP
 import creds
 import uuid
+import time
 
 
 capital = 10000
@@ -30,11 +31,11 @@ class TradingSession:
             symbol=symbol,
             interval=interval,
         ))
+        print(f"var ={var}")
         data=var['result']['list']
         df=pd.DataFrame(data,columns=['timestamp','open','high','low','Close','Volume','VolumeUSD'])
         print(df.head())
-        self.data=df
-        return self.data
+        return df
         
     def place_order(self, category="spot", symbol="BTCUSDT", side="Buy", orderType="Market", qty="0.01", timeInForce="PostOnly"):
         clientOrderId = str(uuid.uuid4())
@@ -123,23 +124,23 @@ class Strategy(TradingSession):
             print("The Signal is 0 no order will be placed")
 
     def apply_conditions(self):
-        var=self.get_kline()
-        data=var['result']['list']
-        df=pd.DataFrame(data,columns=['timestamp','open','Close','high','low','6','Volume'])
-        print(df.head())
-        self.data=df
-        self.data['open']=self.data['open'].astype(float)
-        self.data['Close']=self.data['Close'].astype(float)
-        self.data['high']=self.data['high'].astype(float)
-        self.data['low']=self.data['low'].astype(float)
-        self.SetIndicator()
-        self.Fractal1()
-        self.Fractal2()
-        self.Fractal3()
-        self.Fractal4()  
-        self.Divergence()
-        self.Signal()
-        self.execute_trades()
+        while True:
+            df=self.get_kline()
+            print(f"df recieved {df}")
+            self.data=df
+            self.data['open']=self.data['open'].astype(float)
+            self.data['Close']=self.data['Close'].astype(float)
+            self.data['high']=self.data['high'].astype(float)
+            self.data['low']=self.data['low'].astype(float)
+            self.SetIndicator()
+            self.Fractal1()
+            self.Fractal2()
+            self.Fractal3()
+            self.Fractal4()  
+            self.Divergence()
+            self.Signal()
+            self.execute_trades()
+            time.sleep(60)
 
 #in main fn have while true for loop inside for loop get data of latest 200 candles then calculate indicator,signals then based upon the signal of the latest candle place a buy or sell order.
 

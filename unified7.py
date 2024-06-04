@@ -11,7 +11,7 @@ import creds
 import uuid
 import time
 
-#this code uses rsi along with bbands and fractal points to take trades.
+# This code uses RSI along with Bollinger Bands and fractal points to take trades.
 
 capital = 10000
 startdate = datetime.datetime(2021, 1, 1)
@@ -36,12 +36,11 @@ class TradingSession:
             data = response['result']['list']
             df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'Close', 'Volume', 'VolumeUSD'])
             print(df.head())
-            self.data = df
-            return self.data
+            return df
         else:
             print("Error: Unexpected response format")
-            return None
-        
+            return pd.DataFrame(columns=['timestamp', 'open', 'high', 'low', 'Close', 'Volume', 'VolumeUSD'])
+
     def place_order(self, category="spot", symbol="BTCUSDT", side="Buy", orderType="Market", qty="0.01", timeInForce="PostOnly"):
         clientOrderId = str(uuid.uuid4())
         return self.session.place_order(
@@ -97,6 +96,9 @@ class Strategy(TradingSession):
             if (self.data['Rsi'].iloc[i] > self.data['Rsi'].iloc[i - 1]) & (self.data['Rsi'].iloc[i] > self.data['Rsi'].iloc[i - 2]) & (self.data['Rsi'].iloc[i] > self.data['Rsi'].iloc[i + 1]) & (self.data['Rsi'].iloc[i] > self.data['Rsi'].iloc[i + 2]):
                 self.data['maxtermr'].iloc[i] = True
         return self.data
+    
+    def BothTrue(self):
+        return self.data[(self.data['minterm'] == True) & (self.data['mintermr'] == True)]
 
     def Divergence(self):
         self.data['DivergenceSignal'] = 0
@@ -131,19 +133,27 @@ class Strategy(TradingSession):
     def apply_conditions(self):
         while True:
             df = self.get_kline()
-            self.data = df
-            self.data['open'] = self.data['open'].astype(float)
-            self.data['Close'] = self.data['Close'].astype(float)
-            self.data['high'] = self.data['high'].astype(float)
-            self.data['low'] = self.data['low'].astype(float)
-            self.SetIndicator()
-            self.Fractal1()
-            self.Fractal2()
-            self.Fractal3()
-            self.Fractal4()  
-            self.Divergence()
-            self.Signal()
-            self.execute_trades()
+            if df is not None and not df.empty:
+                self.data = df
+                self.data['open'] = self.data['open'].astype(float)
+                self.data['Close'] = self.data['Close'].astype(float)
+                self.data['high'] = self.data['high'].astype(float)
+                self.data['low'] = self.data['low'].astype(float)
+                self.SetIndicator()
+                self.Fractal1()
+                self.Fractal2()
+                self.Fractal3()
+                self.Fractal4()
+                
+                # Create a column where both minterm and mintermr are True
+                self.data['BothTrue'] = self.data['minterm'] & self.data['mintermr']
+                true_elements_df = self.data[self.data['BothTrue']]
+                
+                self.Divergence()
+                self.Signal()
+                self.execute_trades()
+            else:
+                print("No valid data received. Skipping this iteration.")
             time.sleep(60)
 
 def main():
@@ -153,7 +163,5 @@ def main():
         session = Strategy(stock, startdate=startdate, enddate=enddate, capital=capital, session=trading_session)
         session.apply_conditions()
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
-
-
