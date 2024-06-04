@@ -1,3 +1,4 @@
+#working
 import yfinance as yf
 import talib
 import numpy as np
@@ -8,9 +9,9 @@ import os
 import math
 
 capital = 10000
-startdate = datetime.datetime(2021, 1, 1)
+startdate = datetime.datetime(2017, 8, 1)
 enddate = datetime.datetime(2024, 1, 1)
-stocks = ['MSFT', 'AAPL', 'GOOGL', 'TSLA','JPM']
+stocks = ['MSFT','AAPL']
 
 class Strategy:
     def __init__(self, ticker, startdate, enddate, capital):
@@ -35,7 +36,7 @@ class Strategy:
         n=2
         for i in range(2, len(self.data) - 2):
             for j in range(n):
-                if (self.data['Close'].iloc[i] > self.data['Close'].iloc[i - j]) & (self.data['Close'].iloc[i] > self.data['Close'].iloc[i + j]):
+                if (self.data['Close'].iloc[i] < self.data['Close'].iloc[i - j]) & (self.data['Close'].iloc[i] < self.data['Close'].iloc[i + j]):
                     self.data['minterm'].iloc[i] = True
         return self.data
 
@@ -66,61 +67,30 @@ class Strategy:
                     self.data['maxtermr'].iloc[i] = True
         return self.data
 
-    def Divergence(self):
-        self.data['DivergenceSignal'] = 0
+    def Divergence(self,data):
+        data['DivergenceSignal'] = 0
         n=3
-        for i in range(2, len(self.data) - n):
+        for i in range(2, len(data) - n):
             for j in range(1,n+1):
-                if (self.data['Close'].iloc[i] < self.data['Close'].iloc[i - j]) & (self.data['Rsi'].iloc[i] > self.data['Rsi'].iloc[i + j]):
-                    self.data['DivergenceSignal'].iloc[i] = 1
-                elif (self.data['Close'].iloc[i] > self.data['Close'].iloc[i - j]) & (self.data['Rsi'].iloc[i] < self.data['Rsi'].iloc[i + j]):
-                    self.data['DivergenceSignal'].iloc[i] = -1
-        return self.data
-
-    def Signal(self):
-        self.data['Signal'] = 0
-        for i in range(len(self.data)):
-            if (self.data['Rsi'].iloc[i] < 40) & (self.data['Close'].iloc[i] < (self.data['BBmid'].iloc[i]) / 2) &  (self.data['minterm'].iloc[i] == True) & (self.data['mintermr'].iloc[i] == True):
-                self.data['Signal'].iloc[i] = 1
-            elif (self.data['Rsi'].iloc[i] > 60) & (self.data['Close'].iloc[i] > (self.data['BBmid'].iloc[i]) / 2) & (self.data['maxterm'].iloc[i] == True) & (self.data['maxtermr'].iloc[i] == True):
-                self.data['Signal'].iloc[i] = -1
-        return self.data
-
-    def LogicPL(self):
-        positions = []
-        final_capital = self.capital
-        for i in range(len(self.data) - 10):
-            entry_price = self.data['Close'].iloc[i]
-            quantity = math.floor(self.capital / entry_price)
-            exit_price = self.data['Close'].iloc[i + 10]
-            pl = (exit_price - entry_price) * quantity * self.data['Signal'].iloc[i]
-            final_capital += pl
-            positions.append({
-                'EntryPrice': entry_price,
-                'ExitPrice': exit_price,
-                'PnL': pl,
-                'Quantity': quantity
-            })
-        print(self.data)
-        print(positions)
-        print(final_capital)
-        summarysheet = pd.DataFrame(positions)
-        summarysheet.to_csv(os.path.join('Data', f'summary_{self.ticker}.csv'))
-
-    def graph(self):
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 8))
-        ax1.plot(self.data['Close'], label='Close Price', color='black')
-        ax1.set_title(f"Close price of {self.ticker}", color='black')
-        ax1.set_xlabel('Date')
-        ax1.set_ylabel('Close Price')
-        ax1.grid(True)
-        ax2.plot(self.data['Rsi'], label='RSI', color='black')
-        ax2.set_title(f"RSI of {self.ticker}", color='black')
-        ax2.set_xlabel('Date')
-        ax2.set_ylabel('RSI')
-        ax2.grid(True)
-        plt.savefig(os.path.join('Data', f'{self.ticker}_stock_price_graph.png'), format='png')
-        plt.close()
+                if (data['Close'].iloc[i] < self.data['Close'].iloc[i - j]) & (data['Rsi'].iloc[i] > data['Rsi'].iloc[i + j]):
+                    data['DivergenceSignal'].iloc[i] = 1
+                elif (data['Close'].iloc[i] > data['Close'].iloc[i - j]) & (data['Rsi'].iloc[i] < data['Rsi'].iloc[i + j]):
+                    data['DivergenceSignal'].iloc[i] = -1
+        return data
+    
+    def Signal1(self,data):
+        data['Signal1']=0
+        for i in range(len(data)):
+            if (data['DivergenceSignal'].iloc[i])==1 and (data['Rsi'].iloc[i]<50) and (data['BBmid'].iloc[i]>data['Close'].iloc[i]):
+                data['Signal1'].iloc[i]=1
+        return data
+    
+    def Signal2(self,data):
+        data['Signal2']=0
+        for i in range(len(data)):
+            if (data['DivergenceSignal'].iloc[i])==-1 and (data['Rsi'].iloc[i]>50) and (data['BBmid'].iloc[i]<data['Close'].iloc[i]):
+                data['Signal2'].iloc[i] = -1
+        return data
 
     def apply_conditions(self):
         self.FetchData()
@@ -129,10 +99,21 @@ class Strategy:
         self.Fractal2()
         self.Fractal3()
         self.Fractal4()  
-        self.Divergence()
-        self.Signal()
-        self.LogicPL()
-        self.graph()
+        fractal_df1 = self.data[(self.data['minterm'] == True) & (self.data['mintermr'] == True)]
+        fractal_df2 = self.data[(self.data['maxterm'] == True) & (self.data['maxtermr'] == True)]
+        
+        # Apply Divergence on fractal_df1 and fractal_df2 separately
+        divergence_df1 = self.Divergence(fractal_df1)
+        divergence_df2 = self.Divergence(fractal_df2)
+        
+        Sgn1 = self.Signal1(divergence_df1)
+        Sgn2 = self.Signal2(divergence_df2)
+        
+        Sgn1.to_csv(f"file1_{self.ticker}.csv")
+        Sgn2.to_csv(f"file2_{self.ticker}.csv")
+        print(Sgn1)
+        print(Sgn2)
+
 
 def main():
     for ticker in stocks:
