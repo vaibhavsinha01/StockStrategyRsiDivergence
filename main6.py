@@ -1,3 +1,4 @@
+#the code is same as main5.py but this is for testing only
 #Working TradingBot
 import yfinance as yf
 import talib
@@ -15,7 +16,7 @@ import time
 capital = 10000
 startdate = datetime.datetime(2023, 8, 1)
 enddate = datetime.datetime(2024, 1, 1)
-stocks = ['BTCUSDT','ETHUSDT']
+stocks = ['BTCUSDT']
 
 class TradingSession:
     def __init__(self, testnet=True, api_key=creds.apikey, api_secret=creds.apisecret):
@@ -136,6 +137,8 @@ class Strategy(TradingSession):
             sessionfinal.place_order(category="spot", symbol=self.ticker, side="Buy", orderType="Market", qty=1)
         elif latest_signal == 0:
             print("The Signal is 0, no order will be placed.")
+            print(f"Buy signal detected for {self.ticker}. Placing order.")
+            sessionfinal.place_order(category="spot", symbol=self.ticker, side="Buy", orderType="Market", qty=1)
 
     def execute_trades2(self, data):
         sessionfinal = TradingSession()
@@ -145,6 +148,7 @@ class Strategy(TradingSession):
             sessionfinal.place_order(category="spot", symbol=self.ticker, side="Sell", orderType="Market", qty=1)
         elif latest_signal == 0:
             print("The Signal is 0, no order will be placed.")
+            
     
     def apply_conditions(self):
         while True:
